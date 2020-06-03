@@ -1,98 +1,67 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
+using System.Linq;
+using WebServer.Models;
 
 namespace EmptyApp.Controllers
 {
     public class HomeController : Controller
     {
-
-        private List<Employee> Employees { get; set; }
-
-        public JsonResult Index(int quantity = 1)
+        public HomeController(EmployeesContext context)
         {
-            Staff staff = new Staff();
-            Employees = staff.Emloyees;
-            return Json(Employees);
+            employeesContext = context;
         }
 
-        public string SortByName(int count, int quantity)
-        {
+        EmployeesContext employeesContext { get; set; }
 
-            return "gena";
-        }
-    }
-
-    class Employee
-    {
-        public Employee(
-            string preview,
-            string name,
-            string surname,
-            string birthDate,
-            //int age,
-            string position,
-            bool remoteWork,
-            string address
-            )
+        public JsonResult Index(int quantity = 10)
         {
-            Preview = preview;
-            Name = name;
-            Surname = surname;
-            BirthDate = birthDate;
-            //Age = age;
-            Position = position;
-            RemoteWork = remoteWork;
-            Address = address;
+            var employees = employeesContext.Employees.ToList();
+            return Json(employees);
         }
 
-
-
-        public string Preview { get; set; }
-
-        public string Name { get; set; }
-
-        public string Surname { get; set; }
-
-        public string BirthDate { get; set; }
-
-        //public int Age { get; set; }
-
-        public string Position { get; set; }
-
-        public bool RemoteWork { get; set; }
-
-        public string Address { get; set; }
-
-    }
-
-
-    class Staff
-    {
-        public Staff()
+        public JsonResult SortByName(bool reverse = false)
         {
-            Emloyees = new List<Employee>(){
-                new Employee(
-                "./img/Gena.jpeg",
-                "Гена",
-                "Попов",
-                "05/04/1996",
-                "слесарь",
-                true,
-                "г. СПб, ул. Конюшенная, д. 25, кв. 47"
-                ),
-            new Employee(
-                "./img/Gena.jpeg",
-                "Петя",
-                "Рогов",
-                "12/08/1999",
-                "сантехник",
-                true,
-                "г. СПб, ул. Пенная, д. 56, кв. 16"
-                )
-            };
+            IOrderedQueryable<Employee> employees;
+            if (reverse)
+                employees = employeesContext.Employees.OrderByDescending(p => p.Name);
+            else
+                employees = employeesContext.Employees.OrderBy(p => p.Name);
+
+            return Json(employees);
         }
 
-        public List<Employee> Emloyees { get; private set; }
+        public JsonResult SortBySurname(bool reverse = false)
+        {
+            IOrderedQueryable<Employee> employees;
+            if (reverse)
+                employees = employeesContext.Employees.OrderByDescending(p => p.Surname);
+            else
+                employees = employeesContext.Employees.OrderBy(p => p.Surname);
+
+            return Json(employees);
+        }
+
+        public JsonResult SortByPosition(bool reverse = false)
+        {
+            IOrderedQueryable<Employee> employees;
+            if (reverse)
+                employees = employeesContext.Employees.OrderByDescending(p => p.Position);
+            else
+                employees = employeesContext.Employees.OrderBy(p => p.Position);
+
+            return Json(employees);
+        }
+
+        public JsonResult SortByAddress(bool reverse = false)
+        {
+            IOrderedQueryable<Employee> employees;
+            if (reverse)
+                employees = employeesContext.Employees.OrderByDescending(p => p.Address);
+            else
+                employees = employeesContext.Employees.OrderBy(p => p.Address);
+
+            return Json(employees);
+        }
     }
 
 }

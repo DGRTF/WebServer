@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WebServer.Models;
 
 namespace WebServer
 {
@@ -16,6 +13,9 @@ namespace WebServer
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            string connection = "Server=(localdb)\\mssqllocaldb;Database=tableEmployee;Trusted_Connection=True;";
+            services.AddDbContext<EmployeesContext>(options =>
+                options.UseSqlServer(connection));
             services.AddMvc();
         }
 
@@ -36,6 +36,10 @@ namespace WebServer
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=SortByName}/{reverse?}");
             });
         }
     }
