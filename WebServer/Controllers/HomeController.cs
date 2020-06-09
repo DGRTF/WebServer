@@ -60,16 +60,16 @@ namespace EmptyApp.Controllers
             return Json(employees);
         }
 
-        public JsonResult SortByAddress(bool reverse = false)
-        {
-            IQueryable<Employee> employees;
-            if (reverse)
-                employees = employeesContext.Employees.AsNoTracking().OrderByDescending(p => p.Address);
-            else
-                employees = employeesContext.Employees.AsNoTracking().OrderBy(p => p.Address);
+        //public JsonResult SortByAddress(bool reverse = false)
+        //{
+        //    IQueryable<Employee> employees;
+        //    if (reverse)
+        //        employees = employeesContext.Employees.AsNoTracking().OrderByDescending(p => p.Address);
+        //    else
+        //        employees = employeesContext.Employees.AsNoTracking().OrderBy(p => p.Address);
 
-            return Json(employees);
-        }
+        //    return Json(employees);
+        //}
 
         public JsonResult DeleteEmployee(int id)
         {
@@ -99,7 +99,10 @@ namespace EmptyApp.Controllers
         public JsonResult AddEmployee(
             string name,
             string surname,
-            string address,
+            string city,
+            string street,
+            string home,
+            int flat,
             bool remoteWork,
             string position,
             string birthDate
@@ -145,13 +148,16 @@ namespace EmptyApp.Controllers
                 BirthDate = birthDate,
                 Position = position,
                 RemoteWork = remoteWork,
-                Address = address
+                City = city,
+                Street = street,
+                Home=home,
+                Flat = flat
             };
 
             employeesContext.Employees.Add(employee);
-
-            var employees = employeesContext.Employees.AsNoTracking().ToList();
             employeesContext.SaveChanges();
+            var employees = employeesContext.Employees.AsNoTracking().ToList();
+            
             return Json(employees);
         }
 
@@ -159,7 +165,10 @@ namespace EmptyApp.Controllers
             int id,
             string name,
             string surname,
-            string address,
+            string city,
+            string street,
+            string home,
+            int flat,
             bool remoteWork,
             string position,
             string birthDate
@@ -202,7 +211,10 @@ namespace EmptyApp.Controllers
             {
                 employee.Name = name;
                 employee.Surname = surname;
-                employee.Address = address;
+                employee.City = city;
+                employee.Street = street;
+                employee.Home = home;
+                employee.Flat = flat;
                 employee.RemoteWork = remoteWork;
                 if (path != null)
                     employee.Preview = path;

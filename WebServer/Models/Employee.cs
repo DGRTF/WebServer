@@ -16,6 +16,12 @@
 
         public bool RemoteWork { get; set; }
 
-        public string Address { get; set; }
+        public string City { get; set; }
+
+        public string Street { get; set; }
+
+        public string Home { get; set; }
+
+        public int Flat { get; set; }
     }
 }
