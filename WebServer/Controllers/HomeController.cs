@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.IO;
 using System.Linq;
 using WebServer.Models;
@@ -18,7 +19,7 @@ namespace EmptyApp.Controllers
 
         EmployeesContext employeesContext { get; set; }
 
-        IWebHostEnvironment AppEnvironment {get;set;}
+        IWebHostEnvironment AppEnvironment { get; set; }
 
         public JsonResult Index(int quantity = 10)
         {
@@ -113,18 +114,28 @@ namespace EmptyApp.Controllers
                 IFormFile uploadedFile = Request.Form.Files[0];
                 if (type == "image/jpeg")
                 {
-                    // путь к папке Files
-                    path += uploadedFile.FileName.Replace(" ", string.Empty);
-                    // сохраняем файл в папку Files в каталоге wwwroot
+                    bool definesFile;
+
+                    Random random = new Random();
+                    do
+                    {
+                        path += random.Next().ToString();
+                        definesFile = System.IO.File.Exists(AppEnvironment.WebRootPath + path);
+                    }
+                    while (definesFile);
+
+                    path += ".jpeg";
+
                     using (var fileStream = new FileStream(AppEnvironment.WebRootPath + path, FileMode.Create))
                     {
                         uploadedFile.CopyTo(fileStream);
                     }
                 }
             }
-
-
-            string header = Request.Headers["Content-Type"];
+            else
+            {
+                path += "DefaultEmployee.jpeg";
+            }
 
             Employee employee = new Employee
             {
@@ -150,11 +161,42 @@ namespace EmptyApp.Controllers
             string surname,
             string address,
             bool remoteWork,
-            string preview,
             string position,
             string birthDate
             )
         {
+            string type;
+            string path = "/fileImg/";
+
+            if (Request.Form.Files.Count != 0)
+            {
+                type = Request.Form.Files[0].ContentType;
+                IFormFile uploadedFile = Request.Form.Files[0];
+                if (type == "image/jpeg")
+                {
+                    bool definesFile;
+
+                    Random random = new Random();
+                    do
+                    {
+                        path += random.Next().ToString();
+                        definesFile = System.IO.File.Exists(AppEnvironment.WebRootPath + path);
+                    }
+                    while (definesFile);
+
+                    path += ".jpeg";
+
+                    using (var fileStream = new FileStream(AppEnvironment.WebRootPath + path, FileMode.Create))
+                    {
+                        uploadedFile.CopyTo(fileStream);
+                    }
+                }
+            }
+            else
+            {
+                path = null;
+            }
+
             Employee employee = employeesContext.Employees.FirstOrDefault(x => x.Id == id);
             if (employee != null && employee.Id == id)
             {
@@ -162,10 +204,12 @@ namespace EmptyApp.Controllers
                 employee.Surname = surname;
                 employee.Address = address;
                 employee.RemoteWork = remoteWork;
-                employee.Preview = preview;
+                if (path != null)
+                    employee.Preview = path;
                 employee.Position = position;
                 employee.BirthDate = birthDate;
 
+                employeesContext.Employees.Update(employee);
                 employeesContext.SaveChanges();
             }
             var employees = employeesContext.Employees.AsNoTracking().ToList();
